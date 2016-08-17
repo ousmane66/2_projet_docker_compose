@@ -1,7 +1,7 @@
 # Image base
 FROM ubuntu:16.10 
 
-# mise à jour de l'image
+# mise Ã  jour de l'image
 RUN apt-get update && apt-get -y upgrade
 
 # Installation de tomcat
@@ -11,7 +11,7 @@ RUN apt-get install -y tomcat7
 RUN apt-get update  
 RUN apt-get install -y maven
 
-#création d'un repertoire de travail 
+#crÃ©ation d'un repertoire de travail 
 WORKDIR /code
 
 # Installation de tomcat
@@ -23,7 +23,7 @@ RUN apt-get -y install tomcat7-admin
 # Exposition du port 8080 pour l'exterieur(machine physique)
 EXPOSE 8080
 
-# Installation de  ant pour l'initialisation de la base de donnée
+# Installation de  ant pour l'initialisation de la base de donnÃ©e
 RUN apt-get install ant
 
 # Installation du supervisor
@@ -40,19 +40,20 @@ ADD pom.xml /code/pom.xml
 ARG BD=lutece_bd
 ARG LUTECE=lutece_site
 
-# Compilation du fichier pom.xml pour générer le site
+# Compilation du fichier pom.xml pour gÃ©nÃ©rer le site
 RUN mvn lutece:site-assembly
 
 #configuration du fichier db.properties pour la communication avec la BD 
+#utilisation de @ 172.17.0.3 correspondant Ã  l'@ du conteneur contenant le serveur mysql
 RUN sed -i 's/lutece/$BD/' /code/target/plugin-dockerlutece-1.0.0-SNAPSHOT/WEB-INF/conf/db.properties
 RUN sed -i 's/motdepasse//' /code/target/plugin-dockerlutece-1.0.0-SNAPSHOT/WEB-INF/conf/db.properties
 RUN sed -i 's/localhost/172.17.0.3:3306/' /code/target/plugin-dockerlutece-1.0.0-SNAPSHOT/WEB-INF/conf/db.properties
 RUN sed -i 's/fr.paris.$BD.util.pool.service.LuteceConnectionService/fr.paris.lutece.util.pool.service.LuteceConnectionService/' /code/target/plugin-dockerlutece-1.0.0-SNAPSHOT/WEB-INF/conf/db.properties
  
-#création de la base de donnéés dans le serveur mysql 
+#crÃ©ation de la base de donnÃ©Ã©s dans le serveur mysql 
 RUN ant -file /code/target/plugin-dockerlutece-1.0.0-SNAPSHOT/WEB-INF/sql/build.xml -v
 
-# copie du site généré dans le webapps de tomcat pour son lancement
+# copie du site gÃ©nÃ©rÃ© dans le webapps de tomcat pour son lancement
 RUN cp -r /code/target/plugin-dockerlutece-1.0.0-SNAPSHOT /var/lib/tomcat7/webapps/$LUTECE
 
 # Execution de Tomcat service 
