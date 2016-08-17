@@ -1,0 +1,23 @@
+tomcat:
+ build: tomcat
+ restart: always
+ container_name: tomcat_server
+ ports:
+  - 8080:8080
+ links:
+   - java
+   - db:mysql
+java:
+ build: java8
+ restart: always
+ container_name: java
+db:
+ build: mysql
+ restart: always
+ container_name: mysql_db
+ ports:
+  - 3306:3306
+ links: 
+    - java
+ environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
